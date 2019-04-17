@@ -1,6 +1,8 @@
 import logging
 import os, sys
 
+LOG_FORMAT = "%(asctime)s %(name)20s %(funcName)25s %(levelname)s   %(message)s"
+
 def SetUpLogger(loggerName, logFile):
     """
     Custom logger for this framework.
