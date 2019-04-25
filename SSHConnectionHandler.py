@@ -1,4 +1,5 @@
-## SSH handler to run ssh commands at remote machine.
+# SSH handler to run ssh commands at remote machine.
+# Wrapper over paramiko's ssh to allow clean ssh commands handling.
 
 # Global imports.
 import paramiko
@@ -29,6 +30,8 @@ class SSHConn2Machine:
         self.stdout = None
         self.stderr = None
 
+        # Decrease this if you trust that your server is faster and no command
+        # will take more that 2min to process.
         self.sshCommandsTimeout = 120
 
         # Hold command's output as string with newline chars.
@@ -40,6 +43,9 @@ class SSHConn2Machine:
         self.interact = None
 
     def RefreshRecords(self):
+        """
+        Refresh the connection details locally.
+        """
         self.stdin = None
         self.stdout = None
         self.stderr = None
@@ -76,7 +82,8 @@ class SSHConn2Machine:
                                     format(self.ServerIPAddress))
 
         except Exception as error:
-            self.logger.error("raised : {}".format(error))
+            self.logger.error("SSHConnect raised : {} while connecting to {}".\
+                              format(error, self.ServerIPAddress))
             raise error
 
 
@@ -190,6 +197,9 @@ class SSHConn2Machine:
         self.sshClient.close()
 
     def GetInteractiveSSh(self):
+        """
+        Get an interactive object for running commands.
+        """
         try:
             self.interact = SSHClientInteraction(self.sshClient,
                                                  timeout = 10,
@@ -207,7 +217,7 @@ class SSHConn2Machine:
     def send(self, command):
         self.interact.send(command)
 
-
+# Test code, run from command line.
 def main(ServerIPAddress, userName, password):
     # Create a SSH connection object.
     SSHObj = SSHConn2Machine(ServerIPAddress, userName, password)
@@ -225,6 +235,7 @@ def main(ServerIPAddress, userName, password):
     SSHObj.send("ls")
     SSHObj.expect('.*:~.*\$.*')
 
+# Unit testing.
 if __name__ == "__main__":
     # Create a argument parser object.
     parser = argparse.ArgumentParser( description = __doc__,
